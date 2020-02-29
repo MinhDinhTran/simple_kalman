@@ -127,6 +127,9 @@ void test_kalman(void) {
         0, 0, 10, 0,
         0, 0, 0, 10
     };
+    float R[16] = {
+
+    };
 
     //parameters.state_transition = 
 }
