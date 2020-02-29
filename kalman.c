@@ -1,4 +1,5 @@
 #include "kalman.h"
+#include <stdlib.h>
 
 /*
  * TODO:
@@ -9,24 +10,39 @@
 int predict(struct kalman_parameters_t *parameters, struct kalman_state_t *state,
             struct matrix_t *control, struct matrix_t *new_state) {
     struct matrix_t *state_forward = NULL;
-    matrix_multiply(&parameters->observation_model, &state->predicted_state, state_forward);
+    state_forward = matrix_multiply(&parameters->observation_model, &state->predicted_state);
     struct matrix_t *control_forward = NULL;
-    matrix_multiply(&parameters->control_model, control, control_forward);
-    matrix_add(state_forward, control_forward, &state->predicted_state);
+    control_forward = matrix_multiply(&parameters->control_model, control);
+    struct matrix_t *predicted_state = NULL;
+    predicted_state = matrix_add(state_forward, control_forward);
+    state->predicted_state = *predicted_state;
 
     struct matrix_t *F_t = NULL;
-    matrix_transpose(&parameters->observation_model, F_t);
+    F_t = matrix_transpose(&parameters->observation_model);
+
     struct matrix_t *first_m = NULL;
-    matrix_multiply(&parameters->observation_model, &state->predicted_estimate_covariance, first_m);
+    first_m = matrix_multiply(&parameters->observation_model, &state->predicted_estimate_covariance);
     struct matrix_t *process_noise = NULL;
-    matrix_multiply(first_m, F_t, process_noise);
-    matrix_add(process_noise, &parameters->process_covariance, &state->predicted_estimate_covariance);
+    process_noise = matrix_multiply(first_m, F_t);
+    struct matrix_t *estimate_covariance = NULL;
+    matrix_add(process_noise, &parameters->process_covariance);
+    state->predicted_estimate_covariance = *estimate_covariance;
+
+    destroy_matrix_ptr(state_forward);
+    destroy_matrix_ptr(control_forward);
+    destroy_matrix_ptr(predicted_state);
+    destroy_matrix_ptr(F_t);
+    destroy_matrix_ptr(first_m);
+    destroy_matrix_ptr(process_noise);
+    destroy_matrix_ptr(estimate_covariance);
 
     return 0;
 }
 
 int update(struct kalman_parameters_t *parameters, struct matrix_t measurement,
            struct kalman_state_t *state, struct matrix_t *new_state) {
+    
+    struct matrix_t *measurement_residual = NULL;
     
     return 0;
 }
