@@ -10,6 +10,7 @@ struct matrix_t {
 struct matrix_t create_matrix(int rows, int cols);
 int set_matrix(struct matrix_t *mat, int rows, int cols, float *vals);
 struct matrix_t *create_matrix_ptr(int rows, int cols);
+int copy_matrix(struct matrix_t *from, struct matrix_t *to);
 int destroy_matrix(struct matrix_t matrix);
 int destroy_matrix_ptr(struct matrix_t *matrix);
 

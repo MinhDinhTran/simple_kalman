@@ -34,6 +34,7 @@ void test_matrices(void) {
 
     printf("adding matrices\n");
     result = matrix_add(&matrix, &matrix);
+    print_matrix(result);
 
     printf("Comparing matrices\n");
     bool success = true; 
@@ -128,8 +129,49 @@ void test_kalman(void) {
         0, 0, 0, 10
     };
     float R[16] = {
-
+        5, 0, 0, 0,
+        0, 5, 0, 0,
+        0, 0, 5, 0,
+        0, 0, 0, 5
     };
 
-    //parameters.state_transition = 
+    struct matrix_t A_mat;
+    struct matrix_t B_mat;
+    struct matrix_t Q_mat;
+    struct matrix_t R_mat;
+    printf("setting matrices\n");
+    set_matrix(&A_mat, 4, 4, A);
+    set_matrix(&B_mat, 4, 4, B);
+    set_matrix(&Q_mat, 4, 4, Q);
+    set_matrix(&R_mat, 4, 4, R);
+
+    parameters.state_transition = A_mat;
+    parameters.control_model = B_mat;
+    parameters.process_covariance = Q_mat;
+
+    float X[4] = {
+        0,
+        0,
+        1,
+        1
+    };
+    set_matrix(&state.predicted_state, 4, 1, X);
+
+    float P[16] = {
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+    };
+    set_matrix(&state.predicted_estimate_covariance, 4, 4, P);
+    printf("Beginning prediction\n");
+    float cntrl[4] = {0, 0, 0, 0};
+    struct matrix_t control_input;
+    set_matrix(&control_input, 4, 1, cntrl);   
+    for(int i = 0; i < 5; i++) {
+        predict(&parameters, &state, &control_input, NULL);
+        printf("Iteration %d\n", i);
+        print_matrix(&state.predicted_state);
+        print_matrix(&state.predicted_estimate_covariance);
+    }
 }

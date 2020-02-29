@@ -1,6 +1,7 @@
 #include "matrix.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 /*
  * TODO a better way to handle this is to accept an optional pointer
@@ -31,6 +32,13 @@ struct matrix_t *create_matrix_ptr(int rows, int cols) {
     mat->rows = rows;
     mat->cols = cols;
     mat->vals = malloc(sizeof(float)*rows*cols);
+}
+
+int copy_matrix(struct matrix_t *from, struct matrix_t *to) {
+    if(to->rows != from->rows || to->cols != from->cols) {
+        return -1;
+    }
+    memcpy(to->vals, from->vals, sizeof(float)*from->rows*from->cols);
 }
 
 int destroy_matrix(struct matrix_t matrix) {
