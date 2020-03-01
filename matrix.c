@@ -86,6 +86,24 @@ struct matrix_t *matrix_add(struct matrix_t *mat1, struct matrix_t *mat2) {
     return result;
 }
 
+// TODO don't copy and past this, bad programmer
+struct matrix_t *matrix_subtract(struct matrix_t *mat1, struct matrix_t *mat2) {
+    if (mat1->cols != mat2->cols || mat1->rows != mat2->rows) {
+        perror("These matrices are not the same size!\n");
+        return NULL;
+    }
+       
+    struct matrix_t *result = create_matrix_ptr(mat1->rows, mat1->cols);
+
+    for(int row = 0; row < mat1->rows; row++) {
+        for(int col = 0; col < mat2->cols; col++) {
+            float sum = get_el(mat1, row, col) - get_el(mat2, row, col);
+            set_el(result, row, col, sum);
+        }
+    }
+    return result;
+}
+
 struct matrix_t *matrix_multiply(struct matrix_t *mat1, struct matrix_t *mat2) {
     if (mat1->cols != mat2->rows) {
         return NULL;
@@ -172,9 +190,16 @@ int fill_ignore_row_col(struct matrix_t *mat, struct matrix_t *sub_matrix, int r
 }
 
 struct matrix_t *matrix_of_minors(struct matrix_t *mat) {
-    struct matrix_t *sub_mat = create_matrix_ptr(mat->rows - 1, mat->cols - 1);
     struct matrix_t *mat_of_minors = create_matrix_ptr(mat->rows, mat->cols);
+    if(mat->rows == 2 && mat->cols == 2) {
+        mat_of_minors->vals[0] = mat->vals[3];
+        mat_of_minors->vals[3] = mat->vals[0];
+        mat_of_minors->vals[1] = mat->vals[1];
+        mat_of_minors->vals[2] = mat->vals[2];
+        return mat_of_minors;
+    }
 
+    struct matrix_t *sub_mat = create_matrix_ptr(mat->rows - 1, mat->cols - 1);
     for(int i = 0; i < mat->rows; i++) {
         for(int j = 0; j < mat->cols; j++) {
             fill_ignore_row_col(mat, sub_mat, i, j);
@@ -188,10 +213,15 @@ struct matrix_t *matrix_of_minors(struct matrix_t *mat) {
 
 struct matrix_t *matrix_cofactor(struct matrix_t *mat) {
     float sign = 1;
+    float starting_sign = 1;
     struct matrix_t *mat_cofactor = matrix_of_minors(mat);
-    for(int i = 0; i < mat->cols*mat->rows; i++) {
-        mat_cofactor->vals[i] *= sign;
-        sign *= -1;
+    for(int i = 0; i < mat->rows; i++) {
+        sign = starting_sign;
+        for(int j = 0; j < mat->cols; j++) {
+            set_el(mat_cofactor, i, j, sign*get_el(mat_cofactor, i, j));
+            sign *= -1;
+        }
+        starting_sign *= -1;
     }
     return mat_cofactor;
 }
@@ -209,4 +239,21 @@ struct matrix_t *matrix_inverse(struct matrix_t *mat) {
     }
     destroy_matrix_ptr(cofactor);
     return transpose;
+}
+
+struct matrix_t *identity(int size) {
+    if(size < 1) {
+        return NULL;
+    }
+    struct matrix_t *mat = create_matrix_ptr(size, size);
+    for(int i = 0; i < size; i++) {
+        for(int j = 0; j < size; j++) {
+            if(i == j) {
+                set_el(mat, i, j, 1.0);
+            } else {
+                set_el(mat, i, j, 0.0);
+            }
+        }
+    }
+    return mat;
 }

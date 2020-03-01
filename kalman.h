@@ -19,9 +19,9 @@ struct kalman_state_t {
 
 
 int predict(struct kalman_parameters_t *parameters, struct kalman_state_t *state,
-            struct matrix_t *control, struct matrix_t *new_state);
+            struct matrix_t *control);
 
-int update(struct kalman_parameters_t *parameters, struct matrix_t measurement,
-           struct kalman_state_t *state, struct matrix_t *new_state);
+int update(struct kalman_parameters_t *parameters, struct matrix_t *measurement,
+           struct kalman_state_t *state);
 
 #endif

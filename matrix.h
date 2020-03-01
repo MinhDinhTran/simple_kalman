@@ -20,9 +20,11 @@ float get_el(struct matrix_t *matrix, int row, int col);
 void set_el(struct matrix_t *matrix, int row, int col, float val);
 
 struct matrix_t *matrix_add(struct matrix_t *mat1, struct matrix_t *mat2);
+struct matrix_t *matrix_subtract(struct matrix_t *mat1, struct matrix_t *mat2);
 struct matrix_t *matrix_multiply(struct matrix_t *mat1, struct matrix_t *mat2);
 struct matrix_t *matrix_transpose(struct matrix_t *mat);
 float matrix_determinant(struct matrix_t *mat);
 struct matrix_t *matrix_inverse(struct matrix_t *mat);
+struct matrix_t *identity(int size);
 
 #endif

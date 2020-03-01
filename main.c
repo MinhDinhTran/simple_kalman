@@ -128,26 +128,32 @@ void test_kalman(void) {
         0, 0, 10, 0,
         0, 0, 0, 10
     };
-    float R[16] = {
-        5, 0, 0, 0,
-        0, 5, 0, 0,
-        0, 0, 5, 0,
-        0, 0, 0, 5
+    float R[4] = {
+        10, 0,
+        0, 10
+    };
+    float H[8] = {
+        0, 0, 1, 0,
+        0, 0, 0, 1
     };
 
     struct matrix_t A_mat;
     struct matrix_t B_mat;
     struct matrix_t Q_mat;
     struct matrix_t R_mat;
+    struct matrix_t H_mat;
     printf("setting matrices\n");
     set_matrix(&A_mat, 4, 4, A);
     set_matrix(&B_mat, 4, 4, B);
     set_matrix(&Q_mat, 4, 4, Q);
-    set_matrix(&R_mat, 4, 4, R);
+    set_matrix(&R_mat, 2, 2, R);
+    set_matrix(&H_mat, 2, 4, H);
 
     parameters.state_transition = A_mat;
     parameters.control_model = B_mat;
     parameters.process_covariance = Q_mat;
+    parameters.observation_covariance = R_mat;
+    parameters.observation_model = H_mat;
 
     float X[4] = {
         0,
@@ -168,9 +174,33 @@ void test_kalman(void) {
     float cntrl[4] = {0, 0, 0, 0};
     struct matrix_t control_input;
     set_matrix(&control_input, 4, 1, cntrl);   
-    for(int i = 0; i < 5; i++) {
-        predict(&parameters, &state, &control_input, NULL);
+
+    float sense1[2] = {1.5, 1.5};
+    float sense2[2] = {3, 3};
+    struct matrix_t sense1_mat;
+    struct matrix_t sense2_mat;
+    set_matrix(&sense1_mat, 2, 1, sense1);
+    set_matrix(&sense2_mat, 2, 1, sense2);
+
+    for(int i = 0; i < 3; i++) {
         printf("Iteration %d\n", i);
+        printf("Predict\n");
+        predict(&parameters, &state, &control_input);
+        print_matrix(&state.predicted_state);
+        print_matrix(&state.predicted_estimate_covariance);
+        printf("Update\n");
+        update(&parameters, &sense1_mat, &state);
+        print_matrix(&state.predicted_state);
+        print_matrix(&state.predicted_estimate_covariance);
+    }
+    for(int i = 0; i < 3; i++) {
+        printf("Iteration %d\n", i);
+        printf("Predict\n");
+        predict(&parameters, &state, &control_input);
+        print_matrix(&state.predicted_state);
+        print_matrix(&state.predicted_estimate_covariance);
+        printf("Update\n");
+        update(&parameters, &sense2_mat, &state);
         print_matrix(&state.predicted_state);
         print_matrix(&state.predicted_estimate_covariance);
     }
